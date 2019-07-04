@@ -1,0 +1,275 @@
+\documentclass[14pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\usepackage{mathtools}
+\usepackage{textcomp}
+\usepackage{hyperref}
+
+\algnewcommand{\algorithmicand}{\textbf{ AND }}
+\algnewcommand{\algorithmicor}{\textbf{ OR }}
+\algnewcommand{\algorithmicequal}{\textbf{=}}
+\algnewcommand{\OR}{\algorithmicor}
+\algnewcommand{\AND}{\algorithmicand}
+\algnewcommand{\eq}{\algorithmicequal}
+\algnewcommand{\var}{\texttt}
+
+\begin{document}
+
+\title{\huge Course Assignment - Artificial Intelligence}
+\date{\today}
+\maketitle
+\begin{center}
+\vspace{30 mm}
+
+\author{\huge Student: Simon Jozsef-Gabriel}
+\\\vspace{10 mm}
+\title{\huge Group: 2.3 A}
+\\\vspace{10 mm}
+\title{\huge Speciality: CE}
+\date{}
+\maketitle
+\newpage
+\end{center}
+\tableofcontents
+\newpage
+\section{Problem Statement}
+For choosing the problem we had to compute a hash function which calculates the number of the problem according to our family name and the first given name like this: 1 + (the sum of ASCII codes of the names modulo 4). My hash function calculates this number according to the next algorithm:
+\vspace{2.5 mm}
+\begin{algorithmic}
+\Function{hash}{$name$} \textbf{returns} a number
+    \State \Return $1 + (sum(ord(c) \ for \ c \ in \ name) \ modulo \ 4)$
+\EndFunction
+\end{algorithmic}
+\vspace{2.5 mm}
+This algorithm takes every letter from the family name and first given name denoted by the string variable \textit{name} and after calculating his ASCII code, it sums up with the other letters. After the sum is computed, it takes the modulo 4 from it and in the end, at the final value, adds 1.
+\vspace{2.5 mm}
+\\An example in which you can see how it computes the problem value it is given below for my names:
+\vspace{2.5 mm}
+\\\textbf{EX:} name \eq \ SIMON JOZSEF \textrightarrow \ calls the algorithm hash(SIMON JOZSEF) \textrightarrow \ ord(c) means the ASCII code of the character c, so for the characters from my name it will be like this: ord(S) \eq \ 83, ord(I) \eq \ 73, ord(M) \eq \ 77, ord(O) \eq \ 79, ord(N) \eq \ 78, ord( ) \eq \ 32 (this does not influence the outcome), ord(J) \eq \ 74, ord(O) \eq \ 79, ord(Z) \eq \ 90, ord(S) \eq \ 83, ord(E) \eq \ 69, ord(F) \eq \ 70 \textrightarrow \ after this, sum(ord(c)) will be equal with 83 + 73 + 77 + 79 + 78 + 32 + 74 + 79 + 90 + 83 + 69 + 70 \eq \ 887 \textrightarrow \ the final value, 887 modulo 4 \eq \ 3 at which we add 1 so, the final result, and the problem chosed for me is \textrightarrow \ 3 + 1 \eq \ 4.
+\vspace{2.5 mm}
+\\The statement of the homework problem chosed for me is: n vehicles occupy squares (1, 1) through (n, 1) (i.e., the bottom row) of a nxn grid. The vehicles must be moved to the top row but in reverse order; so the vehicle i that starts in (i, 1) must end up in (n-i+1, n). On each time step, every one of the n vehicles can move one square up, down, left or right, or stay put; but if a vehicle stays put, one other adjacent vehicle(but no more than one) can hop over it. Two vehicles cannot occupy the same square.
+\vspace{2.5 mm}
+\\Firstly I have to say that instead of using a matrix with i,j positions, I gave to each square from the matrix a number from 0 to the size of the grid raised to 2 power like this: 1,1 \textrightarrow \ 0, 1,2 \textrightarrow \ 1 and so on, till you reach n,n \textrightarrow \ the size of the grid raised to 2 power. According to the idea the formulation for this search problem is:
+\\\textbf{State space:} tuple (0,..., i*gridSize,..., (n-1)*gridSize), so the state space will be equal with n.
+\\\textbf{Initial state:} the position of each vehicle \textit{i} according to what i said above, so it will be equal with the multiplication of the index of the state, \textit{i}, and the size of the grid \textit{(i*gridSize)}, which represents the first column. For example, for \textit{gridSize} \eq \ 4 the initial state will be a tuple (0, 4, 8, 12).
+\\\textbf{Actions:} according to my algorithm, the vehicle can move RIGHT, LEFT, UP or DOWN, or stay put (PUT), depending on it's position on the grid and the other vehicles position. So, for example, for the vehicle with the number 0 (i = 0), which is situated in the position 0 on the grid (the first position 1,1), the vehicle cannot go up and left, because it would be outside of the grid, and neither down, because another vehicle is there.
+\\\textbf{Goal state:} the positions where each of the \textit{i} vehicles have to reach are the top row in reverse order, so that means, that for each \textit{(i,1)} vehicle, the final destination will be \textit{(n-i+1,n)}, which according to my algorithm will be \textit{(gridSize\textsuperscript{2} - initial(i) - 1)}. For the example from the initial state, with \textit{gridSize} \eq \ 4, the goal state will be the tuple (15, 11, 7, 3).
+\\\textbf{Path cost:} each action has a cost of 1.
+\vspace{2.5 mm}
+\\To solve this problem I used the A* search algorithm and calculated the heuristic function with the Manhattan distance with the formula: $\left| x\textsubscript{1} - x\textsubscript{2} \right| + \left| y\textsubscript{1} - y\textsubscript{2} \right|$.
+\newpage
+\section{Pseudocode of Algorithms}
+The algorithms I used for this problem are integrated in several functions from a class named \textit{\textbf{VehicleRoads}} which inherits the class from the file \textit{search.py}, \textit{\textbf{Problem}}. The pseudocode for these functions are presented below:
+\vspace{2.5 mm}
+\begin{algorithmic}
+\Function{\_\_init\_\_}{$self, gridSize, initial, goal$} \textbf{initializes} the problem with the size of the grid, the initial state and the goal state
+    \State \textbf{persistent: }$self.stateIndex,$ index used to acces an element from the state
+    \State $self.gridSize \gets gridSize$
+    \State $self.initial \gets initial$
+    \State $self.goal \gets goal$
+    \State $self.stateIndex \gets -1$
+    \State \Call{Problem.\_\_init\_\_}{$self, initial, goal$}
+\EndFunction
+\vspace{2.5 mm}
+\Function{actions}{$self, state$} \textbf{returns} the possible actions for each state
+    \State \textbf{persistent:} $possibleActions,$ a list with possible actions
+    \State $positionVehicle,$ the position of the i\textsuperscript{th} vehicle
+    \State $positionVehicle1,$ the position of the i\textsuperscript{th} vehicle used to verify if the current vehicle can do an action
+    \If{$self.stateIndex \ \eq \ self.gridSize-1 $}
+        \State $self.stateIndex \gets 0$
+    \Else
+        \State $self.stateIndex \gets self.stateIndex + 1$
+    \EndIf
+    \State $possibleActions \gets list['UP' + str(self.stateIndex), 'DOWN' + str(self.stateIndex), 'LEFT' + str(self.stateIndex), 'RIGHT' + str(self.stateIndex), 'PUT' + str(self.stateIndex)]$
+    \State $positionVehicle \gets state[self.stateIndex]$
+    \If{$positionVehicle < self.gridSize$}
+        \If{$'UP' + str(self.stateIndex) \ in \ possibleActions$}
+            \State $possibleActions.remove('UP' + str(self.stateIndex))$
+        \EndIf
+    \EndIf
+    \If{$positionVehicle \geq self.gridSize * (self.gridSize - 1)$}
+        \If{$'DOWN' + str(self.stateIndex) \ in \ possibleActions$}
+            \State $possibleActions.remove('DOWN' + str(self.stateIndex))$
+        \EndIf
+    \EndIf
+    \If{$positionVehicle modulo self.gridSize \ \eq \ 0$}
+        \If{$'LEFT' + str(self.stateIndex) \ in \ possibleActions$}
+            \State $possibleActions.remove('LEFT' + str(self.stateIndex))$
+        \EndIf
+    \EndIf
+    \If{$positionVehicle modulo self.gridSize \ \eq \ self.gridSize - 1$}
+        \If{$'RIGHT' + str(self.stateIndex) \ in \ possibleActions$}
+            \State $possibleActions.remove('RIGHT' + str(self.stateIndex))$
+        \EndIf
+    \EndIf
+    \State $i \gets 0$
+    \While{$i < self.gridSize$}
+        \State $positionVehicle1 \gets state[i]$
+        \If{$positionVehicle-self.gridSize \ \eq \ positionVehicle1$}
+            \If{$'UP' + str(self.stateIndex) \ in \ possibleActions$}
+                \State $possibleActions.remove('UP' + str(self.stateIndex))$
+            \EndIf
+        \EndIf
+        \If{$positionVehicle+self.gridSize \ \eq \ positionVehicle1$}
+            \If{$'DOWN' + str(self.stateIndex) \ in \ possibleActions$}
+                \State $possibleActions.remove('DOWN' + str(self.stateIndex))$
+            \EndIf
+        \EndIf
+        \If{$positionVehicle-1 \ \eq \ positionVehicle1$}
+            \If{$'LEFT' + str(self.stateIndex) \ in \ possibleActions$}
+                \State $possibleActions.remove('LEFT' + str(self.stateIndex))$
+            \EndIf
+        \EndIf
+        \If{$positionVehicle+1 \ \eq \ positionVehicle1$}
+            \If{$'RIGHT' + str(self.stateIndex) \ in \ possibleActions$}
+                \State $possibleActions.remove('RIGHT' + str(self.stateIndex))$
+            \EndIf
+        \EndIf
+        \State $i \gets i + 1$
+    \EndWhile
+    \State \Return possibleActions
+\EndFunction
+\vspace{2.5 mm}
+\Function{Result}{$self, state, action$} \textbf{returns} the new state calculated according to the possible actions
+    \State \textbf{persistent:} $positionVehicle,$ the position of the 
+    i\textsuperscript{th} vehicle
+    \State $newState,$ the new state that is going to be calculated
+    \State $delta,$ used to calculate the new state according to the action
+    \State $positionVehicle \gets state[self.stateIndex]$
+    \State $newState \gets list(state)$
+    \State $delta \gets ['UP'+ str(self.stateIndex):-self.gridSize, \ 'DOWN'+ str(self.stateIndex):+self.gridSize, \ 'LEFT'+ str(self.stateIndex):-1, \ 'RIGHT'+ str(self.stateIndex):+1, \ 'PUT' + str(self.stateIndex):+0]$
+    \State $newState[self.stateIndex] \gets positionVehicle + delta[action]$
+    \State \Return $tuple(newState)$
+\EndFunction
+\vspace{2.5 mm}
+\Function{h}{$self, node$} \textbf{returns} the sum of all Manhattan distances so is the function that calculates the heuristic for the search problem
+    \State $manhattanDistance \gets sum(abs(s-g)*2 \ for \ (s, g) \ in \ zip(node.state, self.goal))$
+    \State \Return $manhattanDistance$
+\EndFunction
+\end{algorithmic}
+\vspace{2.5 mm}
+For generating the input data, I created a new file called \textit{InputDataGenerator.py} that has functions that calculates the size of the grid randomly and also calculates the initial and the goal states according to some rules. The pseudocode for these functions is presented below:
+\vspace{2.5 mm}
+\begin{algorithmic}
+\Function{generateGridSize}{} \textbf{returns} a rondom integer between 1 and 10
+    \State \Return random.randint(1, 5)
+\EndFunction
+\vspace{2.5 mm}
+\Function{generateInitialState}{$gridSize$} \textbf{returns} a tuple that represent the initial state for the problem
+    \State $initialState \gets tuple()$
+    \State $i \gets 0$
+    \While{$i < gridSize$}
+        \State $initialState \gets initialState + tuple([gridSize*i])$
+        \State $i \gets i + 1$
+    \EndWhile
+    \State \Return $initialState$
+\EndFunction
+\vspace{2.5 mm}
+\Function{generateGoalState}{$gridSize, initialState$} \textbf{returns} a tuple that represent the goal state for the problem
+    \State $goalState \gets tuple()$
+    \State $i \gets 0$
+    \While{$i < gridSize$}
+        \State $goalState \gets goalState + tuple([gridSize^2-initialState[i]-1])$
+        \State $i \gets i + 1$
+    \EndWhile
+    \State \Return $goalState$
+\EndFunction
+\end{algorithmic}
+\newpage
+\section{Application Outline}
+Here, I will present the application design of my code, starting with how I chosed to represent the input and the output data. For the input data, I implemented all the functions in \textit{InputDataGenerator.py}. The functions are:
+\\---\textbf{def} generateGridSize();
+\\---\textbf{def} generateInitialState(gridSize);
+\\---\textbf{def} generateGoalState(gridSize, initialState).
+\vspace{2.5 mm}
+\\The first function from this file, \textit{generateGridSize()}, which does not have any arguments, just returns a random integer number between 1 and 5. The problem with my code is that if the variable \textit{gridSize} is greater than 5, the algorithm takes too much time to compute the result, and therefore, the result is not printed and I think it enters in an infinite cycle. I don't know if this problem is because of my personal computer or not, but I thought that this detail is important to be written in this tehnical report. And that is the reason why the number must be between 1 and 5.
+\vspace{2.5 mm}
+\\The second function, \textit{generateInitialState(gridSize)}, which has one argument, \textit{gridSize} which represents the size of the grid randomly given by the first function. Here, I declare a variable named \textit{initialState} as a tuple. After that, I add for each vehicle, its start position(i.e., its initial position, first column) after the rule I denoted in the 1 - Problem Statement - meaning that for each vehicle starting from (i,1) I calculate the position with the formula \textit{gridSize*i}, with $i \in \left \{0, 1, ..., gridSize-1\right \}$. At the end, the function returns the variable \textit{initialState} as computed before.
+\vspace{2.5 mm}
+\\The last function from this file, and that generates the last input data, is the function named \textit{generateGoalState(gridSize, initialState)} which has two arguments, \textit{gridSize} which represents the size of the grid randomly given by the first function and \textit{initialState} used to calculate the goal state, because the goal state is related with the initial state according to my code. Here, I declare the variable \textit{goalState} as a tuple and I compute for each vehicle the goal state. The position starting from (i,1) - \textit{gridSize*i} - has to reach the top row but in reverse order, so, the vehicles finish position has to be (n-i+1,n), which according to my algorithm described at section 1 - Problem Statement - is the equivalent of the position \textit{gridSize\textsuperscript{2}-initialState[i]-1}, with $i \in \left \{0, 1, ..., gridSize-1\right \}$. At the end, the function returns the tuple denoted by the variable \textit{goalState} computed with the rule above.
+\vspace{2.5 mm}
+\\The output data is generated by the function \textit{astar\_search} from the file \textit{search.py} from the framework given to us. This function calls another function named \textit{best\_first\_graph\_search} which finally will compute the path generated for our problem, so the output. With the method \textit{solution()} from the class \textit{Node} from the same file, I will print the path generated according to my algorithm. The output data is a list of actions: [UPi, DOWNi, RIGHTi, LEFTi, PUTi], where i is the index of the state of the i\textsuperscript{th} vehicle, and which I used to help myself know which of the vehicles made the move.
+\vspace{2.5 mm}
+\\All the functions I used for my algorithm and for generating an output data(a path list), were implemented in the file named \textit{P4\_VehicleRoads.py}.All these functions are part of a class \textit{VehicleRoads}, which is a subclass of \textit{Problem} class from the file \textit{search.py}. The functions are:
+\\---\textbf{def} \_\_init\_\_(self, gridSize, initial, goal);
+\\---\textbf{def} \_\_repr\_\_(self, initial, goal);
+\\---\textbf{def} actions(self, state);
+\\---\textbf{def} result(self, state, action);
+\\---\textbf{def} goal\_state(self, state);
+\\---\textbf{def} h(self, node).
+\vspace{2.5 mm}
+\\The function \textit{\_\_init\_\_(self, gridSize, initial, goal)} is the constructor used to initialize the problem with all the values I need. It has three arguments, so it will initialize and define three variables, more exactly \textit{gridSize} which is the size of the grid, \textit{initial} which is the initial state for my problem, generated using the function described above, at the input and output data presentation, and \textit{goal} which represents the goal state for my problem generated using the function described at the same subsection.
+\vspace{2.5 mm}
+\\The function \_\_repr\_\_(self, initial, goal) is just a function that helps me represent the states in a more ordered way. This helped me at the debug part of my code.
+\vspace{2.5 mm}
+\\The next function, \textit{actions(self, state)}, it only has one argument, because \textit{self} is used to access the variable from inside the class. The only argument, \textit{state} represents the state of my problem, used to perform the actions needed and also to access the position of a vehicle. This argument changes after each move of a vehicle, in order to change all the positions, and also the states, of the vehicles. This function returns a list, \textit{possibleActions}, which is a list  containing the moves a vehicle can do according to some rules, like: 2 vehicle cannot share the same square, so if a vehicle is above another one, this vehicle cannot go down, so the down actions will be removed from the list with possible actions. Another rule is that a vehicle cannot go outside of the grid, so when it is placed on the first row, it can't go up, so the actions up will be removed from the list with possible actions, for example. This function will be used for each vehicle.
+\vspace{2.5 mm}
+\\The function that returns the change an action is making over the state of a vehicle is the function \textit{result(self, state, action)}, which has two arguments, \textit{state}, which represents the state of my problem, and \textit{action} which is the current action performed by the vehicle and which will take every element of the list returned from the function above(\textit{actions} function) and will calculate the result of that action over the state, and saves it in a new list called \textit{newState} which represents the state changed after performing an action. This list will be returned at the end of the function as a tuple in order to perform the next actions on it if it's required. For calculating the change an action makes over the state, I introduced a variable named \textit{delta} which is holding the result for each action: if the action will be 'UP' this will substract the value of the variable \textit{gridSize} from the current state of the vehicle, if the action will be 'DOWN' it adds this value to the current state, if the action is 'RIGHT' it adds 1 to the current state, if the actions is 'LEFT' substracts 1, and if the actions is 'PUT' it does nothing, because the vehicle is not moving.
+\vspace{2.5 mm}
+\\The function that will stop the algorithm is \textit{goal\_state(self, state)} which returns True if the state is equal with the goal state, or False if is not. So this function detects when all the vehicles reached the position required.
+\vspace{2.5 mm}
+\\The last function represents the implementation of the heuristic function I used to solve this problem, \textit{h(self, node)}. It has one argument which is the state of one vehicle represented like a node. The heuristic function I used is the Manhattan distance because this was the most suitable heuristic I found for this problem, and I thought that it will give me the fastest and correct answer for the problem. This function calculates in the variable \textit{manhattanDistance} the sum of all distances from the current state to the goal state according to this formula: $abs(s-g)*2$, where \textit{s} and \textit{g} are the current state denoted by \textit{node.state} and the goal of the current state denoted by \textit{self.goal}.
+\newpage
+\section{Experimental Data}
+\textbf{Test 1}
+\\The \textbf{grid size} is 2x2;
+\\The \textbf{initial state} is: (0, 2);
+\\The \textbf{goal state} is: (3, 1);
+\\\textbf{Path}: ['RIGHT0', 'UP1', 'DOWN0', 'RIGHT1'], where the actions that end with 0 represent the moves of vehicle with the number 0, and those that end with 1 the moves of vehicle 1;
+\\\textbf{Execution Time}: 0.0.
+\vspace{0.5 mm}
+\\------------------------------------------------------------------------------
+\vspace{0.5 mm}
+\\\textbf{Test 2}
+\\The \textbf{grid size} is 3x3;
+\\The \textbf{initial state} is: (0, 3, 6);
+\\The \textbf{goal state} is: (8, 5, 2);
+\\\textbf{Path}: ['RIGHT0', 'RIGHT1', 'UP2', 'RIGHT0', 'DOWN1', 'UP2', 'DOWN0', 'UP1', 'RIGHT2', 'DOWN0', 'RIGHT1', 'RIGHT2'], where the actions that end with 0 represent the moves of vehicle with the number 0, those that end with 1 the moves of vehicle 1, and those with 2 the moves of the vehicle 2;
+\\\textbf{Execution Time}: 0.000997304916381836.
+\vspace{0.5 mm}
+\\------------------------------------------------------------------------------
+\vspace{0.5 mm}
+\\\textbf{Test 3}
+\\The \textbf{grid size} is 4x4;
+\\The \textbf{initial state} is: (0, 4, 8, 12);
+\\The \textbf{goal state} is: (15, 11, 7, 3);
+\\\textbf{Path}: ['RIGHT0', 'RIGHT1', 'RIGHT2', 'UP3', 'RIGHT0', 'RIGHT1', 'UP2', 'UP3', 'RIGHT0', 'DOWN1', 'DOWN2', 'DOWN0', 'RIGHT1', 'LEFT2', 'RIGHT3', 'LEFT1', 'LEFT3', 'DOWN0', 'DOWN1', 'RIGHT3', 'LEFT1', 'LEFT3', 'DOWN0', 'UP1', 'UP3', 'UP2', 'RIGHT2', 'RIGHT3', 'RIGHT1', 'RIGHT2', 'RIGHT3', 'LEFT0', 'RIGHT3', 'RIGHT0', 'RIGHT1', 'RIGHT2'], where the actions that end with 0 represent the moves of vehicle with the number 0, those that end with 1 the moves of vehicle 1, those with 2 the moves of the vehicle 2, and those with 3 the moves of the vehicle 3;
+\\\textbf{Execution Time}: 0.008975028991699219.
+\vspace{0.5 mm}
+\\------------------------------------------------------------------------------
+\vspace{0.5 mm}
+\\\textbf{Test 4}
+\\The \textbf{grid size} is 5x5;
+\\The \textbf{initial state} is: (0, 5, 10, 15, 20);
+\\The \textbf{goal state} is: (24, 19, 14, 9, 4);
+\\\textbf{Path}: ['RIGHT0', 'RIGHT1', 'RIGHT2', 'UP3', 'UP4', 'RIGHT0', 'RIGHT1', 'RIGHT2', 'RIGHT3', 'RIGHT0', 'RIGHT1', 'RIGHT2', 'UP3', 'RIGHT1', 'RIGHT2', 'RIGHT3', 'UP4', 'RIGHT0', 'LEFT2', 'RIGHT3', 'UP4', 'LEFT0', 'DOWN1', 'LEFT2', 'RIGHT3', 'RIGHT4', 'DOWN0', 'DOWN1', 'LEFT2', 'LEFT4', 'DOWN0', 'LEFT1', 'DOWN2', 'RIGHT4', 'LEFT1', 'DOWN0', 'DOWN1', 'LEFT2', 'LEFT3', 'LEFT4', 'DOWN0', 'UP1', 'RIGHT2', 'LEFT3', 'RIGHT1', 'UP2', 'RIGHT1', 'RIGHT2', 'LEFT3', 'RIGHT2', 'RIGHT3', 'RIGHT4', 'RIGHT2', 'RIGHT3', 'UP4', 'RIGHT3', 'RIGHT4', 'LEFT0', 'RIGHT4', 'RIGHT0', 'LEFT1', 'RIGHT4', 'RIGHT0', 'RIGHT1'], where the actions that end with 0 represent the moves of vehicle with the number 0, those that end with 1 the moves of vehicle 1, those with 2 the moves of the vehicle 2, those with 3 the moves of the vehicle 3, and those with 4 the moves of the vehicle 4;
+\\\textbf{Execution Time}: 0.2812478542327881.
+\vspace{2.5 mm}
+\\Because of the reason I gave details for in section 3 - Application Outline - regarding the \textit{gridSize} variable which represents the size of the grid, the last test(test 4) is the last value for which my algorithm give an answer. For testing if this paths resulted are correct, I drew the grid on an A4 paper and started to go with the path resulted until I reached the final position.
+\newpage
+\section{Conclusions}
+Working at this assignment helped me gain more experience in artificial intelligence search algorithms and also it helped me understand how it works. I also managed to make me study more the Python programming language and gain more codding ability experience. I chosed Python as a programming language for this problem, because the framework given to us was in Python, and that helped me a lot, and because I thought that in this language will be the easiest way to solve the problem, after working at the last 2 laboratories with it.
+\vspace{2.5 mm}
+\\About the problem, I can say that was a complicated one and it made me some problems, but I am happy that afterall I managed to solve it, even if not completely. From my point of view, the algorithm I implemented, as well as, the heuristic I used for this search problem, are correct and both compute the right answer, but it needs more work to finally make it work perfectly.
+\newpage
+\section{References}
+1) https://stackoverflow.com/
+\vspace{2.5 mm}
+\\2) https://en.wikibooks.org/wiki/LaTeX
+\vspace{2.5 mm}
+\\3) https://tex.stackexchange.com
+\vspace{2.5 mm}
+\\4) Artificial Intelligence courses and laboratories
+\vspace{2.5 mm}
+\\5) https://xlinux.nist.gov/dads/HTML/manhattanDistance.html
+\vspace{2.5 mm}
+\\7) https://www.sharelatex.com
+\vspace{2.5 mm}
+\\8) Stuart Russell and Peter Norvig, \textit{Artificial Intelligence: A Modern Approach.} Prentice Hall, 3rd Edition, 2010.
+\vspace{2.5 mm}
+\\9) https://www.cs.unc.edu/~lazebnik/fall10/lec05\_search.pdf
+\end{document}
