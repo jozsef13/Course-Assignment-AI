@@ -1,0 +1,36 @@
+
+Test 1
+The grid size is 1x1
+The initial state is: (0,)
+The goal state is: (0,)
+Path: []
+Time:0.0
+-----------------------------------------------------------------------------------------------------------------------------
+Test 2
+The grid size is 2x2
+The initial state is: (0, 2)
+The goal state is: (3, 1)
+Path: ['RIGHT0', 'UP1', 'DOWN0', 'RIGHT1']
+Time:0.0
+-----------------------------------------------------------------------------------------------------------------------------
+Test 3
+The grid size is 3x3
+The initial state is: (0, 3, 6)
+The goal state is: (8, 5, 2)
+Path: ['RIGHT0', 'RIGHT1', 'UP2', 'RIGHT0', 'DOWN1', 'UP2', 'DOWN0', 'UP1', 'RIGHT2', 'DOWN0', 'RIGHT1', 'RIGHT2']
+Time:0.000997304916381836
+-----------------------------------------------------------------------------------------------------------------------------
+Test 4
+The grid size is 4x4
+The initial state is: (0, 4, 8, 12)
+The goal state is: (15, 11, 7, 3)
+Path: ['RIGHT0', 'RIGHT1', 'RIGHT2', 'UP3', 'RIGHT0', 'RIGHT1', 'UP2', 'UP3', 'RIGHT0', 'DOWN1', 'DOWN2', 'DOWN0', 'RIGHT1', 'LEFT2', 'RIGHT3', 'LEFT1', 'LEFT3', 'DOWN0', 'DOWN1', 'RIGHT3', 'LEFT1', 'LEFT3', 'DOWN0', 'UP1', 'UP3', 'UP2', 'RIGHT2', 'RIGHT3', 'RIGHT1', 'RIGHT2', 'RIGHT3', 'LEFT0', 'RIGHT3', 'RIGHT0', 'RIGHT1', 'RIGHT2']
+Time:0.008975028991699219
+-----------------------------------------------------------------------------------------------------------------------------
+Test 5
+The grid size is 5x5
+The initial state is: (0, 5, 10, 15, 20)
+The goal state is: (24, 19, 14, 9, 4)
+Path: ['RIGHT0', 'RIGHT1', 'RIGHT2', 'UP3', 'UP4', 'RIGHT0', 'RIGHT1', 'RIGHT2', 'RIGHT3', 'RIGHT0', 'RIGHT1', 'RIGHT2', 'UP3', 'RIGHT1', 'RIGHT2', 'RIGHT3', 'UP4', 'RIGHT0', 'LEFT2', 'RIGHT3', 'UP4', 'LEFT0', 'DOWN1', 'LEFT2', 'RIGHT3', 'RIGHT4', 'DOWN0', 'DOWN1', 'LEFT2', 'LEFT4', 'DOWN0', 'LEFT1', 'DOWN2', 'RIGHT4', 'LEFT1', 'DOWN0', 'DOWN1', 'LEFT2', 'LEFT3', 'LEFT4', 'DOWN0', 'UP1', 'RIGHT2', 'LEFT3', 'RIGHT1', 'UP2', 'RIGHT1', 'RIGHT2', 'LEFT3', 'RIGHT2', 'RIGHT3', 'RIGHT4', 'RIGHT2', 'RIGHT3', 'UP4', 'RIGHT3', 'RIGHT4', 'LEFT0', 'RIGHT4', 'RIGHT0', 'LEFT1', 'RIGHT4', 'RIGHT0', 'RIGHT1']
+Time:0.2812478542327881
+-----------------------------------------------------------------------------------------------------------------------------
