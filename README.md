@@ -1,2 +1,2 @@
 # Course-Assignment-AI
-An application for AI course 
+An application for AI course. All the details about this problem including the problem requirments, the algorithms descriptions and the tests are presented in the tehnical report from the documentation folder.
